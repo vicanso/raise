@@ -1,0 +1,25 @@
+{
+  "except" : [
+    "/components/jquery/dist/jquery.js"
+  ],
+  "files" : [
+    [
+      "/components/normalize.css/normalize.css",
+      "/stylesheets/global.css",
+      "/stylesheets/ui.css",
+      "/stylesheets/icon.css"
+    ],
+    [
+      "/components/underscore/underscore.js",
+      "/components/backbone/backbone.js"
+    ],
+    [
+      "/components/seajs/sea.js",
+      "/javascripts/sea_config.js",
+      "/modules/utils.js",
+      "/javascripts/global.js",
+      "/modules/jttouch_event.js",
+      "/components/jtlazy_load/dest/jtlazy_load.js"
+    ]
+  ]
+}

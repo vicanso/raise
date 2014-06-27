@@ -1,0 +1,9 @@
+{
+  "name" : "jtlazy_load",
+  "version" : "0.0.8",
+  "dependencies"  : {
+    "underscore"  : "1.6.0",
+    "jquery" : "2.1.0"
+  },
+  "main" : "dest/jtlazy_load.js"
+}

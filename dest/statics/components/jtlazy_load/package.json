@@ -1,0 +1,14 @@
+{
+  "name": "jtlazyload",
+  "description": "lazy load",
+  "version": "0.0.1",
+  "main": "dest/jtlazy_load",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-coffee": "~0.10.1",
+    "grunt-contrib-jshint": "~0.9.2"
+  }
+}

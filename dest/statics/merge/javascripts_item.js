@@ -1,0 +1,1 @@
+(function(){seajs.use(["jquery","underscore","jtTouchEvent","utils"],function(){return"development"===CONFIG.env?seajs.emit("loadComplete"):void 0})}).call(this);

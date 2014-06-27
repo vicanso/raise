@@ -1,0 +1,27 @@
+extends ./layout
+
+mixin recommmendsContainer(items)
+  .recommmendsContainer
+    h3 同款推荐
+    ul.recommmends.clearfix
+      each item in items
+        - var imgSrc = CONFIG.staticUrlPrefix + '/raise/' + item._id + '/120.jpg';
+        .item
+          a.anchor(href='#{item.clickUrl}')
+            img(src='#{imgSrc}')
+            span.price ￥#{Number(item.price).toFixed(2)}
+
+
+block bodyContainer
+  #contentContainer
+    - var item = viewData.item;
+    - var imgSrc = CONFIG.staticUrlPrefix + '/raise/' + item._id + '/0.jpg';
+    .itemContainer
+      a.buy(href='#{item.clickUrl}')
+        img(src='#{imgSrc}')
+      .price ￥#{Number(item.price).toFixed(2)}
+      .desc #{item.desc}
+    if viewData.recommmends && viewData.recommmends.length
+      mixin recommmendsContainer(viewData.recommmends)
+  include ./navigation
+  - fileImporter.import(['/stylesheets/item.css', '/javascripts/item.js']);

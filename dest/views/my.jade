@@ -1,0 +1,17 @@
+extends ./layout
+
+mixin ItemView(item)
+  .item
+    - var imgSrc = CONFIG.staticUrlPrefix + '/raise/' + item._id + '/180.jpg';
+    .imgContainer(style='height:#{item.height}px'): img.hidden(data-src='#{imgSrc}')
+    .desc #{item.desc}
+    .like.i.iLikeGrey #{item.likeTotal}
+    .price.i.iPriceTag ￥#{item.price}
+block bodyContainer
+  #contentContainer
+    .myLikeItemsContainer
+      .itemTemplate.hidden
+        mixin ItemView(viewData.itemTemplate)
+      .waterfallList
+  include ./navigation
+  - fileImporter.import(['/javascripts/my.js', '/stylesheets/my.css']);

@@ -1,0 +1,9 @@
+if viewData.navList
+  - fileImporter.import('/stylesheets/navigation.css');
+  nav#navigation
+    each nav in viewData.navList
+      - var url = nav.url, itemClass = '';
+      if nav.active
+        //- - url = 'javascript:;'
+        - itemClass = 'active';
+      a.item.clickItem(href='#{url}', class='#{itemClass}') #{nav.name}

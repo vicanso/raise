@@ -1,0 +1,1 @@
+!function(a){var b=a.JT_BRIDGE;setTimeout(function(){b.emit("deviceReady")},100),b.call=function(a,b){"appInfo"===a&&b(null,{id:"F1D51095-AE4C-4708-BDF6-8EC5638D401A"})}}(window);
