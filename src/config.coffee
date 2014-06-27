@@ -4,7 +4,7 @@ do ->
   .option('-p, --port <n>', 'listen port', parseInt)
   .option('--log <n>', 'the log file')
   .option('--mongodb <n>', 'mongodb uri')
-  .option('--reids <n>', 'redis uri')
+  .option('--redis <n>', 'redis uri')
   .parse process.argv
 
 

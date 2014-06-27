@@ -4,7 +4,7 @@
   program = require('commander');
 
   (function() {
-    return program.version('0.0.1').option('-p, --port <n>', 'listen port', parseInt).option('--log <n>', 'the log file').option('--mongodb <n>', 'mongodb uri').option('--reids <n>', 'redis uri').parse(process.argv);
+    return program.version('0.0.1').option('-p, --port <n>', 'listen port', parseInt).option('--log <n>', 'the log file').option('--mongodb <n>', 'mongodb uri').option('--redis <n>', 'redis uri').parse(process.argv);
   })();
 
   exports.port = program.port || 10000;
