@@ -1,0 +1,54 @@
+@import 'nib'
+@import './common'
+
+waterfallListCss()
+  .waterfallList
+    .waterfall
+      width 50%
+      float left
+      .item
+        background-color #fff
+        margin-left 5px
+        margin-right 5px
+        margin-bottom 10px
+        img
+          display block
+          width 100%
+        .desc
+          font-size 12px
+          margin 0 5px
+          padding 5px 0
+          line-height 1.3em
+          color #444
+          border-bottom 1px solid #e0e0e0
+        .like, .price
+          line-height 30px
+          background-size 16px
+          padding-left 18px
+        .like
+          margin-right 5px
+          float right
+          color #a0a0a0
+          padding-left 25px
+        .price
+          color #ff6191
+          margin-left 10px
+      &:first-child .item
+        margin-left 0
+      &:last-child .item
+        margin-right 0
+
+
+#contentContainer
+  height 100%
+  .myLikeItemsContainer
+    position absolute
+    left 0
+    top 0
+    right -10px
+    padding 5px
+    padding-right 15px
+    bottom $NAVIGATION_HEIGHT
+    overflow scroll
+    -webkit-overflow-scrolling touch
+  waterfallListCss()

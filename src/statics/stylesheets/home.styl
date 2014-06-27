@@ -1,0 +1,58 @@
+@import 'nib'
+@import './common'
+
+itemsListViewCss()
+  .itemsListView
+    width 1000%
+    height 100%
+  .itemContainer
+    position relative
+    height 100%
+    width 10%
+    float left
+    background-position center
+    background-size auto 100%
+    .header
+      background-color rgba(0, 0, 0, 0.5)
+      color #fff
+      height 40px
+      line-height @height
+      text-align center
+      .like, .buy
+        float left
+        height 100%
+        width 50px
+        color #fff
+        background-position center
+        &:active
+          background-color rgba(0, 0, 0, 0.6)
+      .buy
+        float right
+      .price
+        float left
+      .title
+        font-size 18px
+        margin 0 40px
+    .desc
+      position absolute
+      left 5px
+      bottom 0
+      right 5px
+    .price
+      background-color rgba(0, 0, 0, 0.5)
+      border-radius 3px
+      padding 0 5px
+      position absolute
+      color $PINKY_COLOR
+      bottom 2px
+      right 2px
+#contentContainer
+  position absolute
+  top 0
+  left 0
+  right 0
+  bottom $NAVIGATION_HEIGHT
+  overflow hidden
+  itemsListViewCss()
+
+

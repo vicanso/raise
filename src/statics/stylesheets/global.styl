@@ -1,0 +1,68 @@
+@import 'nib'
+@import './common'
+
+html, body
+  color #222
+  font-family Helvetica, STHeiti STXihei, Microsoft JhengHei, Microsoft YaHei, Tohoma, Arial
+  text-size-adjust 100%
+  font-size 14px
+  line-height 1.5em
+  height 100%
+  background-color #f2f2f2
+  -webkit-tap-highlight-color rgba(0, 0, 0, 0)
+  overflow hidden
+  visibility hidden
+a
+  -webkit-touch-callout none
+  text-decoration none
+  
+.clearfix
+  clearfix()
+
+.hidden
+  display none
+
+.loadingContainer
+  left 10%
+  right 10%
+  padding 10px 30px
+  position absolute
+  top 200px
+  border-radius 3px
+  background-color rgba(0, 0, 0, 0.6)
+  line-height 40px
+  color white
+  .spinnerLoading
+    float left
+  .text
+    margin-left 5px
+  z-index 9
+.popUpDialog
+  left 10%
+  right 10%
+  top 50%
+  margin-top -30px
+  padding 10px 30px
+  position absolute
+  border-radius 3px
+  background-color rgba(0, 0, 0, 0.6)
+  line-height 40px
+  color white
+  background-position 10px center
+  background-size 24px
+  background-repeat no-repeat
+  text-indent 10px
+  text-align center
+  z-index 9
+
+
+#DEBUG_CONTAINER
+  display none
+  background-color rgba(0, 0, 0, 0.6)
+  color white
+  position absolute
+  left 0
+  right 0
+  bottom 40px
+  span
+    margin-right 10px

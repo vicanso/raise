@@ -1,0 +1,24 @@
+extends ./layout
+
+mixin ItemView(item)
+  .header
+    a.like.iLike.i(data-id='#{item._id}', href='javascript:;')
+    a.buy(href='#{item.clickUrl}') 购买
+    .title #{item.title}
+  .desc #{item.desc}
+  .price ￥#{Number(item.price).toFixed(2)}
+
+block bodyContainer
+  #contentContainer
+    .itemsListView
+      each item, i in viewData.items
+        - var imgSrc = CONFIG.staticUrlPrefix + '/raise/' + item._id + '/460.jpg';
+        if i < 3
+          .itemContainer(style='background-image:url(#{imgSrc});')
+            mixin ItemView(item)
+        else
+          .itemContainer.notLoad(data-src='#{imgSrc}')
+            mixin ItemView(item)
+  include ./navigation
+  - fileImporter.import('/javascripts/home.js');
+  - fileImporter.import('/stylesheets/home.css');

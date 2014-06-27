@@ -1,0 +1,48 @@
+@import 'nib'
+.spinnerLoading
+  height 40px
+  > div
+    background-color #ff6191
+    height 100%
+    width 4px
+    display inline-block
+    animation stretchdelay 1.2s infinite ease-in-out
+    margin-right 1px
+  .spinnerRect2
+    animation-delay -1.1s
+  .spinnerRect3
+    animation-delay -1.0s
+  .spinnerRect4
+    animation-delay -0.9s
+  .spinnerRect5
+    animation-delay -0.8s
+
+$keyframe-name = stretchdelay
+@keyframes {$keyframe-name}
+  0%, 40%, 100%
+    transform scaleY(0.4)
+  20%
+    transform scaleY(1.0)
+
+.btn
+  display inline-block
+  background-color #0061b3
+  border-radius 4px
+  color white
+  padding 6px 20px
+  text-align center
+  text-decoration none
+  &:active, &:hover
+    background-color rgba(0, 97, 179, 0.7)
+  &.btnPrimary
+    background-color #dc5839
+    &:active
+      background-color rgba(220, 88, 57, 0.7)
+  &.disabled
+    cursor default
+    background-color #e0e0e0
+    &:active
+      background-color #e0e0e0
+  
+
+

@@ -1,0 +1,167 @@
+@import 'nib'
+@import './common'
+
+itemListViewCss($categoryListWidth)
+  .itemListView
+    position absolute
+    left $categoryListWidth + 1
+    top 0
+    bottom 0
+    right -10px
+    padding-right 10px
+    overflow scroll
+    -webkit-overflow-scrolling touch
+    .itemList
+      background-color #f2f2f2
+      margin 2px
+      padding 0
+    .item
+      height 60px
+      list-style none
+      padding 2px 0
+      border-bottom 1px solid #d0d0d0
+      a
+        height 100%
+        display block
+      img
+        display block
+        float left
+        width 58px
+        height 100%
+        border 1px solid #fff
+        background-color #fff
+      .info
+        margin-left 65px
+        color $GREY_COLOR
+        .desc
+          overflow hidden
+          height 40px
+          line-height @height
+        .price
+          float right
+          color $PINKY_COLOR
+    .loadMore
+      background-color transparent
+      display block
+      border-radius 0
+      margin 2px
+      color #444
+      padding 0
+      &:active
+        background-color #e0e0e0
+      span
+        display inline-block
+        line-height 30px
+        padding-left 30px
+        background-size 24px
+        &.hidden
+          display none
+
+categoryListCss($categoryListWidth)
+  .categoryList
+    margin 0
+    padding 0
+    list-style none
+    width $categoryListWidth
+    height 100%
+    background-color #f9f9f9
+    float left
+    .category
+      font-size 16px
+      height 30px
+      line-height @height
+      margin 15px 0
+      background-position 5px center
+      background-repeat no-repeat
+      background-size 20px
+      // &.recommend
+      //   background-image url(../icons/recommend_pinky.png)
+      // &.top
+      //   background-image url(../icons/top_pinky.png)
+      // &.shoes
+      //   background-image url(../icons/shoes_pinky.png)
+      // &.bag
+      //   background-image url(../icons/bag_pinky.png)
+      &:active
+        background-color #e0e0e0
+      &.active
+        a
+          color $PINKY_COLOR
+      a
+        text-align center
+        display block
+        color $GREY_COLOR
+
+
+categorySelectContainerCss()
+  .categorySelectContainer
+    position absolute
+    top 38px
+    left 0
+    right 0
+    bottom 0
+    overflow hidden
+    $categoryListWidth = 70px
+    categoryListCss($categoryListWidth)
+    itemListViewCss($categoryListWidth)
+    // .refresh, .loadingMore
+    //   position absolute
+    //   left $categoryListWidth + 5
+    //   right 0
+    //   font-size 18px
+    //   color black
+    //   font-weight bold
+    //   line-height 50px
+    //   text-align center
+    // .refresh
+    //   top 0
+    // .loadingMore
+    //   bottom 0
+    
+
+#header
+  height $HEADER_HEIGHT
+  line-height @height
+  background-color $PINKY_COLOR
+  font-size 20px
+  color #fff
+  text-align center
+#contentContainer
+  position absolute
+  top 0
+  left 0
+  right 0
+  bottom $NAVIGATION_HEIGHT
+  padding-bottom 10px
+  overflow hidden
+  .searchContainer
+    padding 5px 10px
+    background-color #fff
+    box-shadow 1px 1px 1px #a0a0a0
+    .clear
+      float right
+      color $PINKY_COLOR
+      line-height 28px
+      width 35px
+      display block
+      text-align center
+      &.hidden
+        display none
+    .search
+      padding 0
+      display block
+      width 100%
+      text-indent 30px
+      height 25px
+      margin-left -1px
+      outline none
+      background-image url(../icons/search.png)
+      background-position 10px center
+      background-repeat no-repeat
+      background-color #f1f1f1
+      border 1px solid #d0d0d0
+      border-radius 30px
+      &:focus
+        background-image url(../icons/search_pinky.png)
+
+  categorySelectContainerCss()

@@ -1,0 +1,47 @@
+extends ./layout
+
+mixin Item(item)
+  if !item
+    - item = {_id : "{{_id}}", title : "{{title}}", price : "{{price}}", createdAt : "{{createdAt}}"};
+  li.item
+    a.clearfix(href='/item/#{item._id}?__webview=3')
+      - var imgSrc = CONFIG.staticUrlPrefix + '/raise/' + item._id + '/120.jpg';
+      img.hidden(data-src='#{imgSrc}')
+      .info
+        .title #{item.title}
+        .price ￥#{item.price}
+        .date #{item.createdAt}
+
+
+block bodyContainer
+  //- header#header 分类
+  #contentContainer
+    .searchContainer
+      a.clear.hidden(href='javascript:;') 取消
+      .searchField
+        input.search(type='search', placeholder='搜索你喜欢的宝贝')
+    .categorySelectContainer
+      ul.categoryList
+        each name, category  in viewData.categoryList
+          - var itemClass = category;
+          if category == 'recommend'
+            - itemClass += ' active';
+          li.category(class='#{itemClass}')
+            a(href='javascript:;') #{name}
+      .itemTemplate.hidden
+        mixin Item(null)
+      //- .mask.hidden
+      //- .refresh.hidden 往下拖动刷新...
+      //- .loadingMore.hidden 往上拖动加载更多...
+      .itemListView(data-index='0')
+        - var topInfos = viewData.top;
+        ul.itemList
+          each item in topInfos.items
+            mixin Item(item)
+        if topInfos.total > 10
+          a.btn.loadMore(href='javascript:;')
+            span 点击加载更多...
+            span.iLoading.i.hidden 正在加载中，请稍候...
+  include ./navigation
+  - fileImporter.import('/javascripts/category.js');
+  - fileImporter.import('/stylesheets/category.css');

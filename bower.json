@@ -1,0 +1,25 @@
+{
+  "name": "express_base",
+  "version": "0.0.1",
+  "homepage": "https://github.com/vicanso/express_base",
+  "authors": [
+    "vicanso <vicansocanbico@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/statics/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "normalize.css": "3.0.1",
+    "underscore": "1.6.0",
+    "backbone": "1.1.2",
+    "jquery": "2.1.0",
+    "jtlazy_load" : "0.0.8",
+    "seajs": "*"
+  }
+}
