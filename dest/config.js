@@ -39,6 +39,6 @@
 
   module.exports.mongodbUri = program.mongodb || 'mongodb://localhost:10020/raise';
 
-  module.exports.imagePath = '/data/raise';
+  module.exports.imagePath = '/vicanso/data/raise';
 
 }).call(this);
