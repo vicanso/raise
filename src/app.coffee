@@ -93,7 +93,7 @@ initServer = ->
    * @return {[type]}            [description]
   ###
   staticHandler = (mount, staticPath) ->
-    staticHandler = serveStatic staticPath
+    handler = serveStatic staticPath
     
     hour = 3600
     hourTotal = 30 * 24
@@ -112,7 +112,7 @@ initServer = ->
     app.use mount, (req, res, next) ->
       res.header 'Expires', expires if expires
       res.header 'Cache-Control', "public, max-age=#{staticMaxAge}, s-maxage=#{hour}"
-      staticHandler req, res, (err) ->
+      handler req, res, (err) ->
         return next err if err
         logger.error "#{req.url} is not found!"
         res.send 404, ''
