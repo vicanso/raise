@@ -104,8 +104,8 @@
      * @return {[type]}            [description]
      */
     staticHandler = function(mount, staticPath) {
-      var expires, hour, hourTotal, jtDev, staticMaxAge;
-      staticHandler = serveStatic(staticPath);
+      var expires, handler, hour, hourTotal, jtDev, staticMaxAge;
+      handler = serveStatic(staticPath);
       hour = 3600;
       hourTotal = 30 * 24;
       expires = moment().add(moment.duration(hourTotal, 'hour')).toString();
@@ -125,7 +125,7 @@
           res.header('Expires', expires);
         }
         res.header('Cache-Control', "public, max-age=" + staticMaxAge + ", s-maxage=" + hour);
-        return staticHandler(req, res, function(err) {
+        return handler(req, res, function(err) {
           if (err) {
             return next(err);
           }
