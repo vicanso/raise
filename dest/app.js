@@ -134,6 +134,7 @@
         });
       });
     };
+    staticHandler('/static/raise', config.imagePath);
     staticHandler('/static', path.join("" + __dirname + "/statics"));
     app.use(require('method-override')());
     bodyParser = require('body-parser');

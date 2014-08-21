@@ -117,6 +117,7 @@ initServer = ->
         logger.error "#{req.url} is not found!"
         res.send 404, ''
 
+  staticHandler '/static/raise', config.imagePath
   staticHandler '/static', path.join "#{__dirname}/statics"
 
 
@@ -135,6 +136,7 @@ initServer = ->
     pattern = '*' if config.env == 'development' && !pattern
     res.locals.PATTERN = pattern
     next()
+
 
   require('./router').init app
 
