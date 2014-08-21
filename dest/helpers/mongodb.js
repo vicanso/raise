@@ -34,7 +34,8 @@
         native_parser: true
       },
       server: {
-        poolSize: 5
+        poolSize: 5,
+        auto_reconnect: true
       }
     };
     _.extend(options, defaults);
@@ -42,8 +43,11 @@
     client.on('connected', function() {
       return logger.info("" + uri + " connected");
     });
-    return client.on('disconnected', function() {
+    client.on('disconnected', function() {
       return logger.info("" + uri + " disconnected");
+    });
+    return client.on('error', function(err) {
+      return console.dir(err);
     });
   };
 

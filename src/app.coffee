@@ -1,7 +1,9 @@
 path = require 'path'
-fs = require 'fs'
 config = require './config'
+moment = require 'moment'
+_ = require 'underscore'
 logger = require('./helpers/logger') __filename
+fs = require 'fs'
 
 initAppSetting = (app) ->
   app.set 'view engine', 'jade'
@@ -11,6 +13,8 @@ initAppSetting = (app) ->
   app.locals.CONFIG =
     env : config.env
     staticUrlPrefix : config.staticUrlPrefix
+
+
   jtBridgeFile = path.join __dirname, './statics/javascripts/jt_bridge.js'
   app.locals.jtBridge = fs.readFileSync jtBridgeFile, 'utf8'
   if config.env == 'development'
@@ -22,6 +26,7 @@ initAppSetting = (app) ->
     fs.watchFile jtBridgeDevFile, ->
       app.locals.jtBridgeDev = fs.readFileSync jtBridgeDevFile, 'utf8'
       return
+
   return
 
 initMongod = ->
@@ -33,10 +38,11 @@ initMongod = ->
 
 requestStatistics = ->
   requestTotal = 0
+  tooManyReq = new Error 'too many request'
   (req, res, next) ->
     startAt = process.hrtime()
     requestTotal++
-    stat = ->
+    stat = _.once ->
       diff = process.hrtime startAt
       ms = diff[0] * 1e3 + diff[1] * 1e-6
       requestTotal--
@@ -58,21 +64,25 @@ initServer = ->
   express = require 'express'
   app = express()
   initAppSetting app
+
+
   app.use '/healthchecks', (req, res) ->
     res.send 'success'
 
+    
+  if config.env == 'production'
+    hostName = require('os').hostname()
+    app.use (req, res, next) ->
+      res.header 'JT-Info', "#{hostName},#{process.pid},#{process._jtPid}"
+      next()
+    
+    app.use requestStatistics() 
+    app.use require('morgan')()
 
-  app.use '/root.txt', (req, res) ->
-    res.send '94e9e8a9aa0a51e62915ac1434a3ceb7'
+  timeout = require 'connect-timeout'
+  app.use timeout 5000
 
 
-  app.use requestStatistics() if config.env == 'production'
-
-  app.use require('connect-timeout') 5000
-
-
-
-  app.use require('morgan')() if config.env == 'production'
 
   expressStatic = 'static'
   serveStatic = express[expressStatic]
@@ -83,42 +93,52 @@ initServer = ->
    * @return {[type]}            [description]
   ###
   staticHandler = (mount, staticPath) ->
-    hanlder = serveStatic staticPath
+    staticHandler = serveStatic staticPath
     
     hour = 3600
-    hour = 0 if config.env == 'development'
+    hourTotal = 30 * 24
+    expires = moment().add(moment.duration hourTotal, 'hour').toString()
+    if !process.env.NODE_ENV
+      hour = 0
+      expires = ''
 
-    staticMaxAge = 30 * 24 * hour
+    staticMaxAge = hourTotal * hour
 
     if config.env == 'development'
       jtDev = require 'jtdev'
       app.use mount, jtDev.ext.converter staticPath
       app.use mount, jtDev.stylus.parser staticPath
       app.use mount, jtDev.coffee.parser staticPath
-
     app.use mount, (req, res, next) ->
+      res.header 'Expires', expires if expires
       res.header 'Cache-Control', "public, max-age=#{staticMaxAge}, s-maxage=#{hour}"
-      hanlder req, res, (err) ->
+      staticHandler req, res, (err) ->
         return next err if err
-        res.send 404
-  
+        logger.error "#{req.url} is not found!"
+        res.send 404, ''
 
-
-  staticHandler '/static/raise', config.imagePath
   staticHandler '/static', path.join "#{__dirname}/statics"
-
-  app.use require('morgan') 'dev' if config.env == 'development'
 
 
 
   app.use require('method-override')()
-  app.use require('body-parser')()
+  bodyParser = require 'body-parser'
+  app.use bodyParser.urlencoded {
+    extended : false
+  }
+  app.use bodyParser.json()
+
   app.use (req, res, next) ->
     res.locals.DEBUG = true if req.param('__debug')?
+    res.locals.JS_DEBUG = req.param('__jsdebug') || 0
+    pattern = req.param '__pattern'
+    pattern = '*' if config.env == 'development' && !pattern
+    res.locals.PATTERN = pattern
     next()
 
-  require('./router_params') app
   require('./router').init app
+
+  app.use require './controllers/error'
 
   app.listen config.port
 
@@ -129,7 +149,7 @@ if config.env == 'development'
 else
   JTCluster = require 'jtcluster'
   options = 
-    slaveTotal : 1
+    slaveTotal : 2
     slaveHandler : initServer
   jtCluster = new JTCluster options
   jtCluster.on 'log', (msg) ->

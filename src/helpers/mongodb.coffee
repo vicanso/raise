@@ -19,6 +19,7 @@ module.exports.init = (uri, options = {}) ->
       native_parser : true
     server :
       poolSize : 5
+      auto_reconnect : true
 
   _.extend options, defaults
 
@@ -27,6 +28,8 @@ module.exports.init = (uri, options = {}) ->
     logger.info "#{uri} connected"
   client.on 'disconnected', ->
     logger.info "#{uri} disconnected"
+  client.on 'error', (err) ->
+    console.dir err
 
 
 ###*
