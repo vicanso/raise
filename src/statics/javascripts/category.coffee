@@ -61,6 +61,7 @@ seajs.use ['jquery', 'underscore', 'Backbone', 'jtTouchEvent', 'jtLazyLoad', 'ut
     lazyLoadImage : (index) ->
       itemListView = @getListView index
       JTLazyLoad.load itemListView.find('.item'), itemListView
+      itemListView.trigger 'scroll'
 
   }
 
