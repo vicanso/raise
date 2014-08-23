@@ -5,12 +5,15 @@ do ->
   .option('--log <n>', 'the log file')
   .option('--mongodb <n>', 'mongodb uri')
   .option('--redis <n>', 'redis uri')
+  .option('--stats <n>', 'stats uri')
   .parse process.argv
 
 
 exports.port = program.port || 10000
 
 exports.env = process.env.NODE_ENV || 'development'
+
+exports.app = 'raise'
 
 ###*
  * [staticUrlPrefix 静态文件url前缀]
@@ -27,6 +30,15 @@ exports.redis = do ->
     port : urlInfo.port
     host : urlInfo.hostname
     password : urlInfo.auth
+  }
+
+exports.stats = do ->
+  url = require 'url'
+  statsUri = program.stats || 'stats://localhost:6000'
+  urlInfo = url.parse statsUri
+  {
+    port : urlInfo.port
+    host : urlInfo.hostname
   }
 
 exports.session = 

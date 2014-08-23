@@ -1,26 +1,8 @@
 {
   "home": {
-    "js": [
-      "/components/jquery/dist/jquery.js",
-      "/components/underscore/underscore.js",
-      "/components/backbone/backbone.js",
-      "/components/seajs/sea.js",
-      "/javascripts/sea_config.js",
-      "/modules/jttouch_event.js",
-      "/modules/utils.js",
-      "/javascripts/global.js",
-      "/modules/utils.js",
-      "/javascripts/home.js"
-    ],
-    "css": [
-      "/components/normalize.css/normalize.css",
-      "/stylesheets/global.css",
-      "/stylesheets/ui.css",
-      "/stylesheets/icon.css",
-      "/stylesheets/navigation.css",
-      "/stylesheets/home.css"
-    ],
-    "modifiedAt": "2014-06-27 17:50:03"
+    "js": [],
+    "css": [],
+    "modifiedAt": "2014-08-23 09:32:54"
   },
   "category": {
     "js": [
