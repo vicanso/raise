@@ -124,7 +124,7 @@ jsonResponse = (req, res, data, headerOptions, next) ->
           _.pick item, keys
       else
         data = _.pick data, keys
-    res.json 200, data
+    res.json data
   else
     err = new Error 'the header has been sent!'
     err.msg = '该请求已发送' 

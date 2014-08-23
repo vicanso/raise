@@ -32,6 +32,11 @@ routeInfos = [
     handler : controllers.seajs
   }
   {
+    route : '/timeline'
+    type : 'post'
+    handler : controllers.timeline
+  }
+  {
     route : '/'
     handler : controllers.home
     middleware : [addImporter]
