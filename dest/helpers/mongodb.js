@@ -47,7 +47,7 @@
       return logger.info("" + uri + " disconnected");
     });
     return client.on('error', function(err) {
-      return console.dir(err);
+      return logger.error(err);
     });
   };
 

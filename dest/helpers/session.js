@@ -21,7 +21,9 @@
   session = expressSession({
     secret: sessionConfig.secret,
     key: sessionConfig.key,
-    store: new RedisStore(storeOptions)
+    store: new RedisStore(storeOptions),
+    resave: false,
+    saveUninitialized: false
   });
 
   module.exports = function(req, res, next) {

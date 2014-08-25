@@ -10,9 +10,6 @@ module.exports = (req, res, cbf) ->
     logger.info "ip:#{ip}, html use #{data.html}ms, js use #{data.js}ms, ua:#{ua}"
     JTStats.gauge 'timeline.html', data.html
     JTStats.gauge 'timeline.js', data.js
-
   cbf null, {
     msg : 'success'
   }
-  # console.dir ip
-  # console.dir req.body

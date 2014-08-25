@@ -1,5 +1,5 @@
 (function() {
-  var JTCluster, config, fs, initAppSetting, initMongod, initServer, jtCluster, logger, moment, options, path, requestStatistics, _;
+  var JTCluster, JTStats, config, fs, initAppSetting, initMongod, initServer, jtCluster, logger, moment, options, path, requestStatistics, _;
 
   path = require('path');
 
@@ -8,6 +8,8 @@
   moment = require('moment');
 
   _ = require('underscore');
+
+  JTStats = require('./helpers/stats');
 
   logger = require('./helpers/logger')(__filename);
 
@@ -83,14 +85,14 @@
     app.use('/healthchecks', function(req, res) {
       return res.send('success');
     });
-    if (config.env === 'production') {
+    if (config.env !== 'development') {
       hostName = require('os').hostname();
       app.use(function(req, res, next) {
         res.header('JT-Info', "" + hostName + "," + process.pid + "," + process._jtPid);
         return next();
       });
       app.use(requestStatistics());
-      app.use(require('morgan')());
+      app.use(require('morgan')('tiny'));
     }
     timeout = require('connect-timeout');
     app.use(timeout(5000));
@@ -130,7 +132,7 @@
             return next(err);
           }
           logger.error("" + req.url + " is not found!");
-          return res.send(404, '');
+          return res.status(404).send('');
         });
       });
     };

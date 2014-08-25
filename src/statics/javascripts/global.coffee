@@ -5,7 +5,6 @@ seajs.use ['jquery', 'underscore', 'jtTouchEvent', 'utils'], ($, _, JTTouchEvent
   
   timeline = window.TIME_LINE
   if timeline
-    console.dir timeline.getLogs()
     $.post '/timeline', timeline.getLogs()
     
   JT_BRIDGE.on 'memoryUsage', (usage) ->

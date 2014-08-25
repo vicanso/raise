@@ -183,7 +183,7 @@
           data = _.pick(data, keys);
         }
       }
-      return res.json(200, data);
+      return res.json(data);
     } else {
       err = new Error('the header has been sent!');
       err.msg = '该请求已发送';

@@ -4,12 +4,14 @@
   program = require('commander');
 
   (function() {
-    return program.version('0.0.1').option('-p, --port <n>', 'listen port', parseInt).option('--log <n>', 'the log file').option('--mongodb <n>', 'mongodb uri').option('--redis <n>', 'redis uri').parse(process.argv);
+    return program.version('0.0.1').option('-p, --port <n>', 'listen port', parseInt).option('--log <n>', 'the log file').option('--mongodb <n>', 'mongodb uri').option('--redis <n>', 'redis uri').option('--stats <n>', 'stats uri').parse(process.argv);
   })();
 
   exports.port = program.port || 10000;
 
   exports.env = process.env.NODE_ENV || 'development';
+
+  exports.app = 'raise';
 
 
   /**
@@ -28,6 +30,17 @@
       port: urlInfo.port,
       host: urlInfo.hostname,
       password: urlInfo.auth
+    };
+  })();
+
+  exports.stats = (function() {
+    var statsUri, url, urlInfo;
+    url = require('url');
+    statsUri = program.stats || 'stats://localhost:6000';
+    urlInfo = url.parse(statsUri);
+    return {
+      port: urlInfo.port,
+      host: urlInfo.hostname
     };
   })();
 

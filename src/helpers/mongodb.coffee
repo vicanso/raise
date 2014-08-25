@@ -29,7 +29,7 @@ module.exports.init = (uri, options = {}) ->
   client.on 'disconnected', ->
     logger.info "#{uri} disconnected"
   client.on 'error', (err) ->
-    console.dir err
+    logger.error err
 
 
 ###*

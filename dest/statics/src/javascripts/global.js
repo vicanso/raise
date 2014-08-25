@@ -5,7 +5,7 @@
     document.addEventListener('touchstart', noop, false);
     timeline = window.TIME_LINE;
     if (timeline) {
-      console.dir(timeline.getLogs());
+      $.post('/timeline', timeline.getLogs());
     }
     JT_BRIDGE.on('memoryUsage', function(usage) {
       return $('#DEBUG_CONTAINER .memory').text("" + usage + "MB");

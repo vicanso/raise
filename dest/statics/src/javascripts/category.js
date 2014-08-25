@@ -86,7 +86,8 @@
       lazyLoadImage: function(index) {
         var itemListView;
         itemListView = this.getListView(index);
-        return JTLazyLoad.load(itemListView.find('.item'), itemListView);
+        JTLazyLoad.load(itemListView.find('.item'), itemListView);
+        return itemListView.trigger('scroll');
       }
     });
     new CategoryListView({
