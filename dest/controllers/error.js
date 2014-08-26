@@ -15,7 +15,7 @@
       if (config.env !== 'development') {
         delete data.stack;
       }
-      return res.json(err.statusCode, data);
+      return res.status(err.statusCode).json(data);
     } else {
       data = err.toJSON();
       if (config.env !== 'development') {

@@ -1,5 +1,5 @@
 (function() {
-  var JTCluster, JTStats, config, fs, initAppSetting, initMongod, initServer, jtCluster, logger, moment, options, path, requestStatistics, _;
+  var JTCluster, JTStats, config, fs, initAppSetting, initMongod, initMonitor, initServer, jtCluster, logger, moment, options, path, requestStatistics, toobusy, _;
 
   path = require('path');
 
@@ -14,6 +14,8 @@
   logger = require('./helpers/logger')(__filename);
 
   fs = require('fs');
+
+  toobusy = require('toobusy');
 
   initAppSetting = function(app) {
     var jtBridgeDevFile, jtBridgeFile;
@@ -76,9 +78,28 @@
     };
   };
 
+  initMonitor = function() {
+    var MB, run;
+    MB = 1024 * 1024;
+    run = function() {
+      var heapTotal, heapUsed, memoryUsage, rss;
+      memoryUsage = process.memoryUsage();
+      rss = Math.floor(memoryUsage.rss / MB);
+      heapTotal = Math.floor(memoryUsage.heapTotal / MB);
+      heapUsed = Math.floor(memoryUsage.heapUsed / MB);
+      JTStats.gauge("memory.rss." + (process._jtPid || 0), rss);
+      JTStats.gauge("memory.heapTotal." + (process._jtPid || 0), heapTotal);
+      JTStats.gauge("memory.heapUsed." + (process._jtPid || 0), heapUsed);
+      JTStats.average("lag." + (process._jtPid || 0), toobusy.lag());
+      return setTimeout(run, 10 * 1000);
+    };
+    return run();
+  };
+
   initServer = function() {
     var app, bodyParser, express, expressStatic, hostName, serveStatic, staticHandler, timeout;
     initMongod();
+    initMonitor();
     express = require('express');
     app = express();
     initAppSetting(app);

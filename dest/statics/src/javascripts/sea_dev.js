@@ -22,9 +22,19 @@
       if (!CONFIG.template || !window.IMPORT_FILES.length) {
         return;
       }
-      return $.post('/seajs/files', {
-        template: CONFIG.template,
-        files: window.IMPORT_FILES
+      return $.ajax({
+        url: '/seajs/files',
+        type: 'post',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
+          template: CONFIG.template,
+          files: _.flatten(window.IMPORT_FILES)
+        })
+      }).success(function(res) {
+        if (res.msg) {
+          return alert(res.msg);
+        }
       });
     }, 1);
   });

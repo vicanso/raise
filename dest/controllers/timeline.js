@@ -18,6 +18,7 @@
       logger.info("ip:" + ip + ", html use " + data.html + "ms, js use " + data.js + "ms, ua:" + ua);
       JTStats.gauge('timeline.html', data.html);
       JTStats.gauge('timeline.js', data.js);
+      JTStats.count('pv');
     }
     return cbf(null, {
       msg: 'success'

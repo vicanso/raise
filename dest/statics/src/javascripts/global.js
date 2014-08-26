@@ -1,12 +1,15 @@
 (function() {
   seajs.use(['jquery', 'underscore', 'jtTouchEvent', 'utils'], function($, _, JTTouchEvent, utils) {
-    var noop, timeline;
+    var noop;
     noop = function() {};
     document.addEventListener('touchstart', noop, false);
-    timeline = window.TIME_LINE;
-    if (timeline) {
-      $.post('/timeline', timeline.getLogs());
-    }
+    $(function() {
+      var timeline;
+      timeline = window.TIME_LINE;
+      if (timeline) {
+        return $.post('/timeline', timeline.getLogs());
+      }
+    });
     JT_BRIDGE.on('memoryUsage', function(usage) {
       return $('#DEBUG_CONTAINER .memory').text("" + usage + "MB");
     });

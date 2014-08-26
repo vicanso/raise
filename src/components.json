@@ -1,8 +1,26 @@
 {
   "home": {
-    "js": [],
-    "css": [],
-    "modifiedAt": "2014-08-23 09:32:54"
+    "js": [
+      "/components/jquery/dist/jquery.js",
+      "/components/underscore/underscore.js",
+      "/components/backbone/backbone.js",
+      "/components/seajs/sea.js",
+      "/javascripts/sea_config.js",
+      "/modules/jttouch_event.js",
+      "/modules/utils.js",
+      "/javascripts/global.js",
+      "/modules/utils.js",
+      "/javascripts/home.js"
+    ],
+    "css": [
+      "/components/normalize.css/normalize.css",
+      "/stylesheets/global.css",
+      "/stylesheets/ui.css",
+      "/stylesheets/icon.css",
+      "/stylesheets/navigation.css",
+      "/stylesheets/home.css"
+    ],
+    "modifiedAt": "2014-08-26 21:22:43"
   },
   "category": {
     "js": [
@@ -26,7 +44,7 @@
       "/stylesheets/navigation.css",
       "/stylesheets/category.css"
     ],
-    "modifiedAt": "2014-06-27 17:50:15"
+    "modifiedAt": "2014-08-26 21:22:58"
   },
   "my": {
     "js": [
@@ -50,7 +68,7 @@
       "/stylesheets/navigation.css",
       "/stylesheets/my.css"
     ],
-    "modifiedAt": "2014-06-27 17:50:21"
+    "modifiedAt": "2014-08-26 21:23:03"
   },
   "item": {
     "js": [
@@ -73,6 +91,6 @@
       "/stylesheets/navigation.css",
       "/stylesheets/item.css"
     ],
-    "modifiedAt": "2014-06-27 17:50:29"
+    "modifiedAt": "2014-08-26 21:23:09"
   }
 }

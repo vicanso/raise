@@ -39,6 +39,7 @@
     "morgan": "~1.2.3",
     "redis": "~0.12.1",
     "require-tree": "~0.3.3",
+    "toobusy": "^0.2.4",
     "underscore": "~1.6.0"
   },
   "devDependencies": {

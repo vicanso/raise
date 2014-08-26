@@ -5,7 +5,7 @@ module.exports = (err, req, res, next) ->
   if 'json' == req.accepts ['html', 'json']
     data = err.toJSON()
     delete data.stack if config.env != 'development'
-    res.json err.statusCode, data
+    res.status(err.statusCode).json data
   else
     data = err.toJSON()
     delete data.stack if config.env != 'development'

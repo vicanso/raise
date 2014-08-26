@@ -5,6 +5,7 @@ _ = require 'underscore'
 JTStats = require './helpers/stats'
 logger = require('./helpers/logger') __filename
 fs = require 'fs'
+toobusy = require 'toobusy'
 
 initAppSetting = (app) ->
   app.set 'view engine', 'jade'
@@ -60,9 +61,25 @@ requestStatistics = ->
     res.on 'close', stat
     next()
 
+initMonitor = ->
+  MB = 1024 * 1024
+  run = ->
+    memoryUsage = process.memoryUsage()
+    rss = Math.floor memoryUsage.rss / MB
+    heapTotal = Math.floor memoryUsage.heapTotal / MB
+    heapUsed = Math.floor memoryUsage.heapUsed / MB
+    JTStats.gauge "memory.rss.#{process._jtPid || 0}", rss
+    JTStats.gauge "memory.heapTotal.#{process._jtPid || 0}", heapTotal
+    JTStats.gauge "memory.heapUsed.#{process._jtPid || 0}", heapUsed
+    JTStats.average "lag.#{process._jtPid || 0}", toobusy.lag()
+    setTimeout run, 10 * 1000
+
+  run()
+
 
 initServer = ->
   initMongod()
+  initMonitor()
   express = require 'express'
   app = express()
   initAppSetting app

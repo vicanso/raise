@@ -2,10 +2,10 @@ seajs.use ['jquery', 'underscore', 'jtTouchEvent', 'utils'], ($, _, JTTouchEvent
   noop = ->
   document.addEventListener 'touchstart', noop, false
 
-  
-  timeline = window.TIME_LINE
-  if timeline
-    $.post '/timeline', timeline.getLogs()
+  $ ->
+    timeline = window.TIME_LINE
+    if timeline
+      $.post '/timeline', timeline.getLogs()
     
   JT_BRIDGE.on 'memoryUsage', (usage) ->
     $('#DEBUG_CONTAINER .memory').text "#{usage}MB"
@@ -14,3 +14,6 @@ seajs.use ['jquery', 'underscore', 'jtTouchEvent', 'utils'], ($, _, JTTouchEvent
       utils.loading true
     else
       utils.loading false
+
+
+  
