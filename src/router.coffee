@@ -82,6 +82,10 @@ routeInfos = [
     type : ['post', 'get']
     handler : controllers.like
   }
+  {
+    route : '/test'
+    handler : controllers.test
+  }
 ]
 
 

@@ -1,5 +1,5 @@
 (function() {
-  var client, config, redis, redisConfig;
+  var client, config, logger, redis, redisConfig;
 
   config = require('../config');
 
@@ -11,16 +11,18 @@
     auth_pass: redisConfig.password
   });
 
+  logger = require('./logger')(__filename);
+
   client.on('ready', function() {
-    return console.dir('ready');
+    return logger.info('ready');
   });
 
   client.on('connect', function() {
-    return console.dir('connect');
+    return logger.info('connect');
   });
 
   client.on('error', function(err) {
-    return console.dir("error: " + err.message);
+    return logger.error("error: " + err.message);
   });
 
   module.exports = client;

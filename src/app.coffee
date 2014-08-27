@@ -2,10 +2,12 @@ path = require 'path'
 config = require './config'
 moment = require 'moment'
 _ = require 'underscore'
+express = require 'express'
+
 JTStats = require './helpers/stats'
 logger = require('./helpers/logger') __filename
 fs = require 'fs'
-toobusy = require 'toobusy'
+
 
 initAppSetting = (app) ->
   app.set 'view engine', 'jade'
@@ -38,24 +40,27 @@ initMongod = ->
     mongodb.init uri
     mongodb.initModels path.join __dirname, './models'
 
+###*
+ * [requestStatistics 请求统计]
+ * @return {[type]} [description]
+###
 requestStatistics = ->
-  requestTotal = 0
-  tooManyReq = new Error 'too many request'
+  handlingReqTotal = 0
   (req, res, next) ->
-   
     startAt = process.hrtime()
-    requestTotal++
+    handlingReqTotal++
     stat = _.once ->
       diff = process.hrtime startAt
       ms = diff[0] * 1e3 + diff[1] * 1e-6
-      requestTotal--
+      handlingReqTotal--
       data = 
         responeseTime : ms.toFixed(3)
         statusCode : res.statusCode
         url : req.url
-        requestTotal : requestTotal
-        contentLength : GLOBAL.parseInt res._headers['content-length']
+        handlingReqTotal : handlingReqTotal
+        contentLength : GLOBAL.parseInt res.get 'Content-Length'
       logger.info data
+      JTStats.gauge "handlingReqTotal.#{process._jtPid || 0}", handlingReqTotal
 
     res.on 'finish', stat
     res.on 'close', stat
@@ -63,7 +68,7 @@ requestStatistics = ->
 
 initMonitor = ->
   MB = 1024 * 1024
-  run = ->
+  memoryLog = ->
     memoryUsage = process.memoryUsage()
     rss = Math.floor memoryUsage.rss / MB
     heapTotal = Math.floor memoryUsage.heapTotal / MB
@@ -71,48 +76,51 @@ initMonitor = ->
     JTStats.gauge "memory.rss.#{process._jtPid || 0}", rss
     JTStats.gauge "memory.heapTotal.#{process._jtPid || 0}", heapTotal
     JTStats.gauge "memory.heapUsed.#{process._jtPid || 0}", heapUsed
-    JTStats.average "lag.#{process._jtPid || 0}", toobusy.lag()
-    setTimeout run, 10 * 1000
+    setTimeout memoryLog, 10 * 1000
 
-  run()
+  lagTotal = 0
+  lagCount = 0
+  toobusy = require 'toobusy'
+  lagLog = ->
+    lagTotal += toobusy.lag()
+    lagCount++
+    if lagCount == 10
+      lag = Math.ceil lagTotal / lagCount
+      lagCount = 0
+      lagTotal = 0
+      JTStats.average "lag.#{process._jtPid || 0}", lag
+    setTimeout lagLog, 1000
 
-
-initServer = ->
-  initMongod()
-  initMonitor()
-  express = require 'express'
-  app = express()
-  initAppSetting app
-
-
-  app.use '/healthchecks', (req, res) ->
-    res.send 'success'
-
-    
-  if config.env != 'development'
-    hostName = require('os').hostname()
-    app.use (req, res, next) ->
-      res.header 'JT-Info', "#{hostName},#{process.pid},#{process._jtPid}"
-      next()
-    app.use requestStatistics() 
-    app.use require('morgan') 'tiny'
+  memoryLog()
+  lagLog()
 
 
+adminHandler = (app) ->
+  crypto = require 'crypto'
+  app.get '/jt/restart', (req, res) ->
+    key = req.query?.key
+    if key
+      shasum = crypto.createHash 'sha1'
+      if '6a3f4389a53c889b623e67f385f28ab8e84e5029' == shasum.update(key).digest 'hex'
+        res.status(200).json {msg : 'success'}
+        jtCluster?.restartAll()
+      else
+        res.status(500).json {msg : 'fail, the key is wrong'}
+    else
+      res.status(500).json {msg : 'fail, the key is null'}
 
-  timeout = require 'connect-timeout'
-  app.use timeout 5000
 
-
-
+staticHandler = do ->
   expressStatic = 'static'
   serveStatic = express[expressStatic]
   ###*
    * [staticHandler 静态文件处理]
+   * @param  {[type]} app      [description]
    * @param  {[type]} mount      [description]
    * @param  {[type]} staticPath [description]
    * @return {[type]}            [description]
   ###
-  staticHandler = (mount, staticPath) ->
+  (app, mount, staticPath) ->
     handler = serveStatic staticPath
     
     hour = 3600
@@ -137,8 +145,39 @@ initServer = ->
         logger.error "#{req.url} is not found!"
         res.status(404).send ''
 
-  staticHandler '/static/raise', config.imagePath
-  staticHandler '/static', path.join "#{__dirname}/statics"
+initServer = ->
+  initMongod()
+  initMonitor()
+  app = express()
+  initAppSetting app
+
+
+  app.use '/healthchecks', (req, res) ->
+    res.send 'success'
+
+    
+  if config.env != 'development'
+    hostName = require('os').hostname()
+    app.use (req, res, next) ->
+      res.header 'JT-Info', "#{hostName},#{process.pid},#{process._jtPid}"
+      next()
+    app.use requestStatistics() 
+    httpLogger = require('./helpers/logger') 'HTTP'
+    app.use require('morgan') {
+      format : 'tiny'
+      stream : 
+        write : (msg) ->
+          httpLogger.info msg.trim()
+    }
+  
+
+
+  timeout = require 'connect-timeout'
+  app.use timeout 5000
+
+
+  staticHandler app, '/static/raise', config.imagePath
+  staticHandler app, '/static', path.join "#{__dirname}/statics"
 
 
 
@@ -157,7 +196,7 @@ initServer = ->
     res.locals.PATTERN = pattern
     next()
 
-
+  adminHandler app
   require('./router').init app
 
   app.use require './controllers/error'

@@ -1,7 +1,15 @@
 (function() {
-  var Logger, appPath, path;
+  var Logger, appPath, colors, config, moment, path;
+
+  config = require('../config');
 
   path = require('path');
+
+  moment = require('moment');
+
+  if (config.env === 'development') {
+    colors = require('colors');
+  }
 
   Logger = (function() {
     function Logger(tag) {
@@ -32,15 +40,24 @@
 
     Logger.prototype._log = function(type, msg) {
       var data, str;
-      data = {
-        type: type,
-        msg: msg,
-        createdAt: new Date().toString()
-      };
-      if (this.tag) {
-        data.tag = this.tag;
+      if (config.env === 'development') {
+        str = ("[" + type + "]").green;
+        str += (" " + (moment().format('HH:mm:ss'))).grey;
+        str += " " + (JSON.stringify(msg));
+        if (this.tag) {
+          str += (" [" + this.tag + "]").cyan;
+        }
+      } else {
+        data = {
+          type: type,
+          msg: msg,
+          createdAt: new Date().toString().green
+        };
+        if (this.tag) {
+          data.tag = this.tag;
+        }
+        str = JSON.stringify(data);
       }
-      str = JSON.stringify(data);
       if (type === 'error') {
         return console.error(str);
       } else {

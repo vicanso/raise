@@ -1,5 +1,5 @@
 (function() {
-  var JTCluster, JTStats, config, fs, initAppSetting, initMongod, initMonitor, initServer, jtCluster, logger, moment, options, path, requestStatistics, toobusy, _;
+  var JTCluster, JTStats, adminHandler, config, express, fs, initAppSetting, initMongod, initMonitor, initServer, jtCluster, logger, moment, options, path, requestStatistics, staticHandler, _;
 
   path = require('path');
 
@@ -9,13 +9,13 @@
 
   _ = require('underscore');
 
+  express = require('express');
+
   JTStats = require('./helpers/stats');
 
   logger = require('./helpers/logger')(__filename);
 
   fs = require('fs');
-
-  toobusy = require('toobusy');
 
   initAppSetting = function(app) {
     var jtBridgeDevFile, jtBridgeFile;
@@ -50,27 +50,33 @@
     }
   };
 
+
+  /**
+   * [requestStatistics 请求统计]
+   * @return {[type]} [description]
+   */
+
   requestStatistics = function() {
-    var requestTotal, tooManyReq;
-    requestTotal = 0;
-    tooManyReq = new Error('too many request');
+    var handlingReqTotal;
+    handlingReqTotal = 0;
     return function(req, res, next) {
       var startAt, stat;
       startAt = process.hrtime();
-      requestTotal++;
+      handlingReqTotal++;
       stat = _.once(function() {
         var data, diff, ms;
         diff = process.hrtime(startAt);
         ms = diff[0] * 1e3 + diff[1] * 1e-6;
-        requestTotal--;
+        handlingReqTotal--;
         data = {
           responeseTime: ms.toFixed(3),
           statusCode: res.statusCode,
           url: req.url,
-          requestTotal: requestTotal,
-          contentLength: GLOBAL.parseInt(res._headers['content-length'])
+          handlingReqTotal: handlingReqTotal,
+          contentLength: GLOBAL.parseInt(res.get('Content-Length'))
         };
-        return logger.info(data);
+        logger.info(data);
+        return JTStats.gauge("handlingReqTotal." + (process._jtPid || 0), handlingReqTotal);
       });
       res.on('finish', stat);
       res.on('close', stat);
@@ -79,9 +85,9 @@
   };
 
   initMonitor = function() {
-    var MB, run;
+    var MB, lagCount, lagLog, lagTotal, memoryLog, toobusy;
     MB = 1024 * 1024;
-    run = function() {
+    memoryLog = function() {
       var heapTotal, heapUsed, memoryUsage, rss;
       memoryUsage = process.memoryUsage();
       rss = Math.floor(memoryUsage.rss / MB);
@@ -90,43 +96,66 @@
       JTStats.gauge("memory.rss." + (process._jtPid || 0), rss);
       JTStats.gauge("memory.heapTotal." + (process._jtPid || 0), heapTotal);
       JTStats.gauge("memory.heapUsed." + (process._jtPid || 0), heapUsed);
-      JTStats.average("lag." + (process._jtPid || 0), toobusy.lag());
-      return setTimeout(run, 10 * 1000);
+      return setTimeout(memoryLog, 10 * 1000);
     };
-    return run();
+    lagTotal = 0;
+    lagCount = 0;
+    toobusy = require('toobusy');
+    lagLog = function() {
+      var lag;
+      lagTotal += toobusy.lag();
+      lagCount++;
+      if (lagCount === 10) {
+        lag = Math.ceil(lagTotal / lagCount);
+        lagCount = 0;
+        lagTotal = 0;
+        JTStats.average("lag." + (process._jtPid || 0), lag);
+      }
+      return setTimeout(lagLog, 1000);
+    };
+    memoryLog();
+    return lagLog();
   };
 
-  initServer = function() {
-    var app, bodyParser, express, expressStatic, hostName, serveStatic, staticHandler, timeout;
-    initMongod();
-    initMonitor();
-    express = require('express');
-    app = express();
-    initAppSetting(app);
-    app.use('/healthchecks', function(req, res) {
-      return res.send('success');
+  adminHandler = function(app) {
+    var crypto;
+    crypto = require('crypto');
+    return app.get('/jt/restart', function(req, res) {
+      var key, shasum, _ref;
+      key = (_ref = req.query) != null ? _ref.key : void 0;
+      if (key) {
+        shasum = crypto.createHash('sha1');
+        if ('6a3f4389a53c889b623e67f385f28ab8e84e5029' === shasum.update(key).digest('hex')) {
+          res.status(200).json({
+            msg: 'success'
+          });
+          return typeof jtCluster !== "undefined" && jtCluster !== null ? jtCluster.restartAll() : void 0;
+        } else {
+          return res.status(500).json({
+            msg: 'fail, the key is wrong'
+          });
+        }
+      } else {
+        return res.status(500).json({
+          msg: 'fail, the key is null'
+        });
+      }
     });
-    if (config.env !== 'development') {
-      hostName = require('os').hostname();
-      app.use(function(req, res, next) {
-        res.header('JT-Info', "" + hostName + "," + process.pid + "," + process._jtPid);
-        return next();
-      });
-      app.use(requestStatistics());
-      app.use(require('morgan')('tiny'));
-    }
-    timeout = require('connect-timeout');
-    app.use(timeout(5000));
+  };
+
+  staticHandler = (function() {
+    var expressStatic, serveStatic;
     expressStatic = 'static';
     serveStatic = express[expressStatic];
 
     /**
      * [staticHandler 静态文件处理]
+     * @param  {[type]} app      [description]
      * @param  {[type]} mount      [description]
      * @param  {[type]} staticPath [description]
      * @return {[type]}            [description]
      */
-    staticHandler = function(mount, staticPath) {
+    return function(app, mount, staticPath) {
       var expires, handler, hour, hourTotal, jtDev, staticMaxAge;
       handler = serveStatic(staticPath);
       hour = 3600;
@@ -157,8 +186,38 @@
         });
       });
     };
-    staticHandler('/static/raise', config.imagePath);
-    staticHandler('/static', path.join("" + __dirname + "/statics"));
+  })();
+
+  initServer = function() {
+    var app, bodyParser, hostName, httpLogger, timeout;
+    initMongod();
+    initMonitor();
+    app = express();
+    initAppSetting(app);
+    app.use('/healthchecks', function(req, res) {
+      return res.send('success');
+    });
+    if (config.env !== 'development') {
+      hostName = require('os').hostname();
+      app.use(function(req, res, next) {
+        res.header('JT-Info', "" + hostName + "," + process.pid + "," + process._jtPid);
+        return next();
+      });
+      app.use(requestStatistics());
+      httpLogger = require('./helpers/logger')('HTTP');
+      app.use(require('morgan')({
+        format: 'tiny',
+        stream: {
+          write: function(msg) {
+            return httpLogger.info(msg.trim());
+          }
+        }
+      }));
+    }
+    timeout = require('connect-timeout');
+    app.use(timeout(5000));
+    staticHandler(app, '/static/raise', config.imagePath);
+    staticHandler(app, '/static', path.join("" + __dirname + "/statics"));
     app.use(require('method-override')());
     bodyParser = require('body-parser');
     app.use(bodyParser.urlencoded({
@@ -178,6 +237,7 @@
       res.locals.PATTERN = pattern;
       return next();
     });
+    adminHandler(app);
     require('./router').init(app);
     app.use(require('./controllers/error'));
     app.listen(config.port);
